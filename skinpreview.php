@@ -1,34 +1,35 @@
 <?php
 	define('MC_SKINS_BASE_URL', 'http://s3.amazonaws.com/MinecraftSkins/');
-	$skin_src = 'char.png';
+	
+	$skin_path = null;
+	$skin = null;
 	
 	//parameters: pseudo=[mc pseudo] OR url=[URL pointing to a skin png]
 	
-	if(isset($_GET['pseudo'])
-		&& $_GET['pseudo'] != null 
-		&& !is404(MC_SKINS_BASE_URL . $_GET['pseudo'] . '.png')
-	) {
-		//if pseudo is given and we can reach it (check using is404())
-		//we set the skin path to the url pointing to the pseudo on s3.amazonaws.com
-		$skin_src = MC_SKINS_BASE_URL . $_GET['pseudo'] . '.png';
-	} else if(isset($_GET['url']) 
-		&& $_GET['url'] != null 
-		&& !is404($_GET['url'])
-	) {
-		//else if we're given an URL and we can reach it
-		//we set the skin path to this url
-		$skin_src = $_GET['url'];
+	if(isset($_GET['pseudo']) && $_GET['pseudo'] != null) {
+		//if pseudo is given, we set the skin path to the url pointing to the pseudo on s3.amazonaws.com
+		$skin_path = MC_SKINS_BASE_URL . $_GET['pseudo'] . '.png';
+	} else if(isset($_GET['url']) && $_GET['url'] != null) {
+		//else if we're given an URL, we set the skin path to this url
+		$skin_path = $_GET['url'];
+	} else {
+		$skin_path = 'char.png';
 	}
 	
 	//first, we load the skin
-	$skin = imagecreatefrompng($skin_src);
+	$skin = @imagecreatefrompng($skin_path);
+
+	if(!$skin) {
+		//if for some reason we couldn't download the file
+		$skin = imagecreatefrompng('char.png');
+	}
+
 	//then, we create the destination image (16*32 transparent png file)
 	$preview = imagecreatetruecolor(16, 32);
 	
 	//we want it to have a transparent background
 	$transparent = imagecolorallocatealpha($preview, 255, 255, 255, 127);
 	imagefill($preview, 0, 0, $transparent);
-	
 	
 	//if we want to get the preview of the back of the skin
 	if($_GET['side'] == 'back') {
@@ -83,20 +84,6 @@
 	//aaaand we're done :D
 	header ("Content-type: image/png");
 	imagepng($fullsize);
-	
-	function is404($skin_src) {
-	    $handle = curl_init($skin_src);
-	    curl_setopt($handle,  CURLOPT_RETURNTRANSFER, TRUE);
-	    $response = curl_exec($handle);
-	    $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-	    curl_close($handle);
-	
-	    if ($httpCode >= 200 && $httpCode < 400) {
-	        return false;
-	    } else {
-	        return true;
-	    }
-	}
 	
 	function flipSkin($preview, $skin, $dst_x, $dst_y, $src_x, $src_y, $src_w, $src_h) { //using the same sytax as imagecopy
 		$tmp = imagecreatetruecolor(4, 12);
