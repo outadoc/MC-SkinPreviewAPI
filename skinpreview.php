@@ -50,7 +50,9 @@
 		flipSkin($preview, $skin, 8, 20, 12, 20, 4, 12);
 			
 		//armor
-		imagecopy($preview, $skin, 4, 0, 56, 8, 8, 8);
+		if(!isBlackSquare($skin, 4, 0)) {
+			imagecopy($preview, $skin, 4, 0, 56, 8, 8, 8);
+		}
 	} else { //else, if we want the front of the skin
 		//face
 		imagecopy($preview, $skin, 4, 0, 8, 8, 8, 8);
@@ -67,7 +69,9 @@
 		flipSkin($preview, $skin, 8, 20, 4, 20, 4, 12);
 			
 		//armor
-		imagecopy($preview, $skin, 4, 0, 40, 8, 8, 8);
+		if(!isBlackSquare($skin, 4, 0)) {
+			imagecopy($preview, $skin, 4, 0, 40, 8, 8, 8);
+		}
 	}
 	
 	imagedestroy($skin); //we don't need this anymore
@@ -104,5 +108,19 @@
 		} else {
 			die("Unable to flip image");
 		}
+	}
+
+	function isBlackSquare($img, $x, $y) {
+		$isBlack = true;
+		//check for a 8*8 square of pixels starting at ($x;$y)
+		for($i = $x; $i < 8; $i++) {
+			for($j = $y; $j < 8; $j++) {
+				if(imagecolorat($img, $i, $j) != 0) {
+					$isBlack = false;
+				}
+			}
+		}
+
+		return $isBlack;
 	}
 ?>
