@@ -46,7 +46,7 @@
 		imagecopy($preview, $skin, 4, 20, 12, 20, 4, 12);
 		flipSkin($preview, $skin, 8, 20, 12, 20, 4, 12);
 		//copy armor
-		if(!isBlackSquare($skin, 4, 0)) {
+		if(!isBlackSquare($skin, 56, 8)) {
 			imagecopy($preview, $skin, 4, 0, 56, 8, 8, 8);
 		}
 
@@ -64,7 +64,7 @@
 		imagecopy($preview, $skin, 4, 20, 4, 20, 4, 12);		
 		flipSkin($preview, $skin, 8, 20, 4, 20, 4, 12);
 		//copy armor
-		if(!isBlackSquare($skin, 4, 0)) {
+		if(!isBlackSquare($skin, 40, 8)) {
 			imagecopy($preview, $skin, 4, 0, 40, 8, 8, 8);
 		}
 	}
@@ -112,8 +112,8 @@
 	function isBlackSquare($img, $x, $y) {
 		$isBlack = true;
 		//check for a 8*8 square of pixels starting at ($x;$y)
-		for($i = $x; $i < 8; $i++) {
-			for($j = $y; $j < 8; $j++) {
+		for($i = $x; $i < $x + 8; $i++) {
+			for($j = $y; $j < $y + 8; $j++) {
 				//if this pixel isn't black, then remember it
 				if(imagecolorat($img, $i, $j) != 0) {
 					$isBlack = false;
