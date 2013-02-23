@@ -20,7 +20,7 @@
 	$skin = @imagecreatefrompng($skin_path);
 
 	if(!$skin) {
-		//if for some reason we couldn't download the file
+		//if for some reason we couldn't download the file, use the local skin
 		$skin = imagecreatefrompng('char.png');
 	}
 
@@ -31,65 +31,64 @@
 	$transparent = imagecolorallocatealpha($preview, 255, 255, 255, 127);
 	imagefill($preview, 0, 0, $transparent);
 	
-	//if we want to get the preview of the back of the skin
+	//we copy all the parts of the skin where they belong to, on a new blank image
 	if($_GET['side'] == 'back') {
-		//blitting the parts of the skin where they belong
-		
-		//head back
+		//if we want to get the preview of the back of the skin
+
+		//copy head back
 		imagecopy($preview, $skin, 4, 0, 24, 8, 8, 8);
-		
-		//back
+		//copy back
 		imagecopy($preview, $skin, 4, 8, 32, 20, 8, 12);
-		
-		//arms back
+		//copy arms back
 		imagecopy($preview, $skin, 0, 8, 52, 20, 4, 12);
-		flipSkin($preview, $skin, 12, 8, 52, 20, 4, 12); //flipSkin: in Minecraft, some parts of the skins are flipped horizontally. We're simulating it here.
-		
-		//legs back
+		flipSkin($preview, $skin, 12, 8, 52, 20, 4, 12);
+		//copy legs back
 		imagecopy($preview, $skin, 4, 20, 12, 20, 4, 12);
 		flipSkin($preview, $skin, 8, 20, 12, 20, 4, 12);
-			
-		//armor
+		//copy armor
 		if(!isBlackSquare($skin, 4, 0)) {
 			imagecopy($preview, $skin, 4, 0, 56, 8, 8, 8);
 		}
-	} else { //else, if we want the front of the skin
-		//face
+
+	} else {
+		//else, if we want the front of the skin
+
+		//copy face
 		imagecopy($preview, $skin, 4, 0, 8, 8, 8, 8);
-		
-		//chest
+		//copy chest
 		imagecopy($preview, $skin, 4, 8, 20, 20, 8, 12);
-		
-		//arms
+		//copy arms
 		imagecopy($preview, $skin, 0, 8, 44, 20, 4, 12);
 		flipSkin($preview, $skin, 12, 8, 44, 20, 4, 12);
-		
-		//legs
+		//copy legs
 		imagecopy($preview, $skin, 4, 20, 4, 20, 4, 12);		
 		flipSkin($preview, $skin, 8, 20, 4, 20, 4, 12);
-			
-		//armor
+		//copy armor
 		if(!isBlackSquare($skin, 4, 0)) {
 			imagecopy($preview, $skin, 4, 0, 40, 8, 8, 8);
 		}
 	}
 	
-	imagedestroy($skin); //we don't need this anymore
+	//we don't need the original skin anymore
+	imagedestroy($skin);
 	
-	//resizing the preview: currently, it's a 16*32 file. We want it larger.
-	$fullsize = imagecreatetruecolor(85, 170); //85*170 is fine
+	//resize the preview: currently, it's a 16*32 file. We want it larger. 85*170 is fine
+	$fullsize = imagecreatetruecolor(85, 170);
 	imagesavealpha($fullsize, true);
 	$transparent = imagecolorallocatealpha($fullsize, 255, 255, 255, 127);
 	imagefill($fullsize, 0, 0, $transparent);
 	
-	//copying the preview to the full-sized image
+	//copy the preview to the full-sized image
 	imagecopyresized($fullsize, $preview, 0, 0, 0, 0, imagesx($fullsize), imagesy($fullsize), imagesx($preview), imagesy($preview));
 	
-	//aaaand we're done :D
+	//and we're done :D
 	header ("Content-type: image/png");
 	imagepng($fullsize);
 	
-	function flipSkin($preview, $skin, $dst_x, $dst_y, $src_x, $src_y, $src_w, $src_h) { //using the same sytax as imagecopy
+	function flipSkin($preview, $skin, $dst_x, $dst_y, $src_x, $src_y, $src_w, $src_h) {
+		//in Minecraft, some parts of the skins are flipped horizontally. We're simulating it here.
+		//uses the same parameters as imagecopy
+
 		$tmp = imagecreatetruecolor(4, 12);
 		imagecopy($tmp, $skin, 0, 0, $src_x, $src_y, $src_w, $src_h);
 		flipHorizontal($tmp);
@@ -115,6 +114,7 @@
 		//check for a 8*8 square of pixels starting at ($x;$y)
 		for($i = $x; $i < 8; $i++) {
 			for($j = $y; $j < 8; $j++) {
+				//if this pixel isn't black, then remember it
 				if(imagecolorat($img, $i, $j) != 0) {
 					$isBlack = false;
 				}
