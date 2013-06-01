@@ -90,16 +90,31 @@
 		//uses the same parameters as imagecopy
 
 		$tmp = imagecreatetruecolor(4, 12);
+
+		//set a transparent background
+		imagesavealpha($tmp, true);
+		$transparent = imagecolorallocatealpha($tmp, 255, 255, 255, 127);
+		imagefill($tmp, 0, 0, $transparent);
+
+		//copy, flip and copy back
 		imagecopy($tmp, $skin, 0, 0, $src_x, $src_y, $src_w, $src_h);
 		flipHorizontal($tmp);
 		imagecopy($preview, $tmp, $dst_x, $dst_y, 0, 0, $src_w, $src_h);
+
 		imagedestroy($tmp);
 	}
 	
 	function flipHorizontal(&$img) {
 	 	$size_x = imagesx($img);
 	 	$size_y = imagesy($img);
+
 	 	$temp = imagecreatetruecolor($size_x, $size_y);
+
+	 	//set a transparent background
+	 	imagesavealpha($temp, true);
+		$transparent = imagecolorallocatealpha($temp, 255, 255, 255, 127);
+		imagefill($temp, 0, 0, $transparent);
+
 	 	$x = imagecopyresampled($temp, $img, 0, 0, ($size_x-1), 0, $size_x, $size_y, 0-$size_x, $size_y);
 	 	
 	 	if ($x) {
