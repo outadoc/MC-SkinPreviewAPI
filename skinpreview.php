@@ -108,17 +108,17 @@
 	 	$size_x = imagesx($img);
 	 	$size_y = imagesy($img);
 
-	 	$temp = imagecreatetruecolor($size_x, $size_y);
+	 	$tmp = imagecreatetruecolor($size_x, $size_y);
 
 	 	//set a transparent background
-	 	imagesavealpha($temp, true);
-		$transparent = imagecolorallocatealpha($temp, 255, 255, 255, 127);
-		imagefill($temp, 0, 0, $transparent);
+	 	imagesavealpha($tmp, true);
+		$transparent = imagecolorallocatealpha($tmp, 255, 255, 255, 127);
+		imagefill($tmp, 0, 0, $transparent);
 
-	 	$x = imagecopyresampled($temp, $img, 0, 0, ($size_x-1), 0, $size_x, $size_y, 0-$size_x, $size_y);
+	 	$x = imagecopyresampled($tmp, $img, 0, 0, ($size_x-1), 0, $size_x, $size_y, 0-$size_x, $size_y);
 	 	
 	 	if ($x) {
-			$img = $temp;
+			$img = $tmp;
 		} else {
 			die("Unable to flip image");
 		}
