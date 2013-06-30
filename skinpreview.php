@@ -4,11 +4,11 @@
 	$skin_path = null;
 	$skin = null;
 	
-	//parameters: pseudo=[mc pseudo] OR url=[URL pointing to a skin png]
+	//parameters: username=[mc username] OR url=[URL pointing to a skin png]
 	
-	if(isset($_GET['pseudo']) && $_GET['pseudo'] != null) {
-		//if pseudo is given, we set the skin path to the url pointing to the pseudo on s3.amazonaws.com
-		$skin_path = MC_SKINS_BASE_URL . $_GET['pseudo'] . '.png';
+	if(isset($_GET['username']) && $_GET['username'] != null) {
+		//if username is given, we set the skin path to the url pointing to the username on s3.amazonaws.com
+		$skin_path = MC_SKINS_BASE_URL . $_GET['username'] . '.png';
 	} else if(isset($_GET['url']) && $_GET['url'] != null) {
 		//else if we're given an URL, we set the skin path to this url
 		$skin_path = $_GET['url'];
