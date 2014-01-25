@@ -60,10 +60,10 @@ function allPixelsAreSameColor(image) {
 	var firstPixColor = [image.data[0], image.data[1], image.data[2], image.data[3]];
 
 	for (var i = 0; i < image.data.length; i += 4) {
-		if(allSame && (image.data[i+0] != firstPixColor[0]
+		if(image.data[i+0] != firstPixColor[0]
 			|| image.data[i+1] != firstPixColor[1]
 			|| image.data[i+2] != firstPixColor[2]
-			|| image.data[i+3] != firstPixColor[3])) {
+			|| image.data[i+3] != firstPixColor[3]) {
 
 			return false;
 		}
