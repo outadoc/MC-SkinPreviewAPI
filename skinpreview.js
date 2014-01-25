@@ -11,45 +11,74 @@ function getPreviewFromSkin(path, side, zoom) {
 
 	//when the skin is loaded, process it
 	img_orig.addEventListener("load", function() {
-		var head, armor, chest, arm_left, arm_right, leg_left, leg_right;
+		var head, chest, arm_left, arm_right, leg_left, leg_right,
+			armor_head, armor_chest, armor_arm_left, armor_arm_right, armor_leg_left, armor_leg_right;
+
+		//draw the skin on the canvas
 		ctx_orig.drawImage(img_orig, 0, 0);
 
 		if(side != 'back') {
+
 			//if we want a preview of the front of the skin or if nothing is specified
 			//get body parts, one at a time
 			head = ctx_orig.getImageData(8, 8, 8, 8);
-			armor = ctx_orig.getImageData(40, 8, 8, 8);
 
 			chest = ctx_orig.getImageData(20, 20, 8, 12);
 
-			arm_left = ctx_orig.getImageData(44, 20, 4, 12);
+			//if there's a specific skin for left arm, use it. else, flip the right arm's skin and use it instead.
 			arm_right = ctx_orig.getImageData(44, 20, 4, 12);
+			arm_left = (allPixelsAreSameColor(ctx_orig.getImageData(36, 52, 4, 12))) ? flipImage(arm_right) : ctx_orig.getImageData(36, 52, 4, 12);
 
-			leg_left = ctx_orig.getImageData(4, 20, 4, 12);
+			//if there's a specific skin for left leg, use it. else, flip the right leg's skin and use it instead.
 			leg_right = ctx_orig.getImageData(4, 20, 4, 12);
+			leg_left = (allPixelsAreSameColor(ctx_orig.getImageData(20, 52, 4, 12))) ? flipImage(leg_right) : ctx_orig.getImageData(20, 52, 4, 12);
+
+			//it's armor time!
+			armor_head = ctx_orig.getImageData(40, 8, 8, 8);
+
+			armor_chest = ctx_orig.getImageData(20, 36, 8, 12);
+
+			armor_arm_right = ctx_orig.getImageData(44, 36, 4, 12);
+			armor_arm_left = ctx_orig.getImageData(52, 52, 4, 12);
+
+			armor_leg_right = ctx_orig.getImageData(4, 36, 4, 12);
+			armor_leg_left = ctx_orig.getImageData(4, 52, 4, 12);
+
 		} else {
+
 			//if we want a preview of the back of the skin
 			head = ctx_orig.getImageData(24, 8, 8, 8);
-			armor = ctx_orig.getImageData(56, 8, 8, 8);
 
 			chest = ctx_orig.getImageData(32, 20, 8, 12);
 
-			arm_left = ctx_orig.getImageData(52, 20, 4, 12);
 			arm_right = ctx_orig.getImageData(52, 20, 4, 12);
+			arm_left = (allPixelsAreSameColor(ctx_orig.getImageData(44, 52, 4, 12))) ? flipImage(arm_right) : ctx_orig.getImageData(44, 52, 4, 12);
 
-			leg_left = ctx_orig.getImageData(12, 20, 4, 12);
 			leg_right = ctx_orig.getImageData(12, 20, 4, 12);
+			leg_left = (allPixelsAreSameColor(ctx_orig.getImageData(28, 52, 4, 12))) ? flipImage(leg_right) : ctx_orig.getImageData(28, 52, 4, 12);
+
+			//it's armor time!
+			armor_head = ctx_orig.getImageData(56, 8, 8, 8);
+
+			armor_chest = ctx_orig.getImageData(32, 36, 8, 12);
+
+			armor_arm_right = ctx_orig.getImageData(52, 36, 4, 12);
+			armor_arm_left = ctx_orig.getImageData(60, 52, 4, 12);
+
+			armor_leg_right = ctx_orig.getImageData(12, 36, 4, 12);
+			armor_leg_left = ctx_orig.getImageData(12, 52, 4, 12);
+
 		}
 
 		ctx_orig = null; //don't need that anymore
 
 		//we got everything, just stick the parts where they belong on the preview
-		ctx_tmp.putImageData(overlayArmor(head, armor), 4, 0, 0, 0, 8, 8);
-		ctx_tmp.putImageData(chest, 4, 8, 0, 0, 8, 16);
-		ctx_tmp.putImageData(arm_left, 0, 8, 0, 0, 4, 16);
-		ctx_tmp.putImageData(flipImage(arm_right), 12, 8, 0, 0, 4, 16);
-		ctx_tmp.putImageData(leg_left, 4, 20, 0, 0, 4, 16);
-		ctx_tmp.putImageData(flipImage(leg_right), 8, 20, 0, 0, 4, 16);
+		ctx_tmp.putImageData(overlayArmor(head, armor_head), 4, 0, 0, 0, 8, 8);
+		ctx_tmp.putImageData(overlayArmor(chest, armor_chest), 4, 8, 0, 0, 8, 16);
+		ctx_tmp.putImageData(overlayArmor(arm_left, armor_arm_left), 0, 8, 0, 0, 4, 16);
+		ctx_tmp.putImageData(overlayArmor(arm_right, armor_arm_right), 12, 8, 0, 0, 4, 16);
+		ctx_tmp.putImageData(overlayArmor(leg_left, armor_leg_left), 4, 20, 0, 0, 4, 16);
+		ctx_tmp.putImageData(overlayArmor(leg_right, armor_leg_right), 8, 20, 0, 0, 4, 16);
 
 		resizeImage(ctx_tmp.getImageData(0, 0, 16, 40), ctx_prev, (zoom !== undefined) ? zoom : 6);
 	});
