@@ -125,21 +125,20 @@
 	}
 
 	function checkForPlainSquare($img, $x, $y) {
-		$isPlain = true;
 		//remember the color of the first pixel
 		$firstPixColor = imagecolorat($img, 0, 0);
 
 		//check for a 8*8 square of pixels starting at ($x;$y)
 		for($i = $x; $i < $x + 8; $i++) {
 			for($j = $y; $j < $y + 8; $j++) {
-				//if this pixel isn't the same color, then remember it
+				//if this pixel isn't the same color, then return false
 				if(imagecolorat($img, $i, $j) != $firstPixColor) {
-					$isPlain = false;
+					return false;
 				} 
 			}
 		}
 
 		//if all pixels are the same color, this should be true
-		return $isPlain;
+		return true;
 	}
 ?>
