@@ -26,11 +26,11 @@ function getPreviewFromSkin(path, side, zoom) {
 			chest = ctx_orig.getImageData(20, 20, 8, 12);
 
 			//if there's a specific skin for left arm, use it. else, flip the right arm's skin and use it instead.
-			arm_right = ctx_orig.getImageData(44, 20, 4, 12);
+			arm_right = flipImage(ctx_orig.getImageData(44, 20, 4, 12));
 			arm_left = (allPixelsAreSameColor(ctx_orig.getImageData(36, 52, 4, 12))) ? flipImage(arm_right) : ctx_orig.getImageData(36, 52, 4, 12);
 
 			//if there's a specific skin for left leg, use it. else, flip the right leg's skin and use it instead.
-			leg_right = ctx_orig.getImageData(4, 20, 4, 12);
+			leg_right = flipImage(ctx_orig.getImageData(4, 20, 4, 12));
 			leg_left = (allPixelsAreSameColor(ctx_orig.getImageData(20, 52, 4, 12))) ? flipImage(leg_right) : ctx_orig.getImageData(20, 52, 4, 12);
 
 			//it's armor time!
@@ -51,10 +51,10 @@ function getPreviewFromSkin(path, side, zoom) {
 
 			chest = ctx_orig.getImageData(32, 20, 8, 12);
 
-			arm_right = ctx_orig.getImageData(52, 20, 4, 12);
+			arm_right = flipImage(ctx_orig.getImageData(52, 20, 4, 12));
 			arm_left = (allPixelsAreSameColor(ctx_orig.getImageData(44, 52, 4, 12))) ? flipImage(arm_right) : ctx_orig.getImageData(44, 52, 4, 12);
 
-			leg_right = ctx_orig.getImageData(12, 20, 4, 12);
+			leg_right = flipImage(ctx_orig.getImageData(12, 20, 4, 12));
 			leg_left = (allPixelsAreSameColor(ctx_orig.getImageData(28, 52, 4, 12))) ? flipImage(leg_right) : ctx_orig.getImageData(28, 52, 4, 12);
 
 			//it's armor time!
