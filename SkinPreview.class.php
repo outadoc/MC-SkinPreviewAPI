@@ -1,8 +1,5 @@
 <?php
 	
-	// Disable error messages, since we're trying to send binary data
-	error_reporting(0);
-
 	class SkinRenderer {
 
 		private $skin_width;
@@ -138,6 +135,19 @@
 			imagedestroy($skin);
 
 			return $this->resizeBitmap($preview);
+		}
+
+		public function renderSkinBase64($skin_path, $skin_type, $skin_side) {
+			$data = $this->renderSkin($skin_path, $skin_type, $skin_side);
+
+			// Write the image to the PHP output buffer
+			ob_start();
+    		imagepng($data);
+    		$contents = ob_get_contents();
+			ob_end_clean();
+
+			// Encode the contents of the buffer to base 64
+			return base64_encode($contents);
 		}
 
 		private function resizeBitmap(&$skin) {
