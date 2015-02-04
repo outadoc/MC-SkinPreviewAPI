@@ -12,7 +12,7 @@
 	$renderer = new SkinRenderer(85);
 
 	// Render the skin (with its path, type and desired side)
-	$skin = $renderer->renderSkin('test/pre_1_8.png', 'steve', 'front');
+	$skin = $renderer->renderSkinFromPath('test/pre_1_8.png', 'steve', 'front');
 
 	// Render as base 64 encoded data
 	// $skin = $renderer->renderSkinBase64('test/pre_1_8.png', 'steve', 'front');

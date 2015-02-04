@@ -26,18 +26,18 @@
 
 		/**
 		 * Creates a new skin renderer. It can then be used to render as many skins as you like.
-		 * 
+		 *
 		 * @param int $render_width the width of the rendered skin (corresponding height will be calculated automatically)
 		 * @param string $fallback_skin_path the skin file that will be used if the requested skin can't be loaded
 		 */
 		public function __construct($render_width = 85, $fallback_skin_path = 'char.png')
 		{
-			$this->skin_width = $render_width;
+			$this->skin_width         = $render_width;
 			$this->fallback_skin_path = $fallback_skin_path;
 		}
 
 		/**
-		 * Renders a Minecraft skin.
+		 * Renders a local Minecraft skin using its path.
 		 *
 		 * @param string $skin_path the path to the skin that is to be rendered
 		 * @param string $skin_type the skin type; must be 'steve' or 'alex'
@@ -46,7 +46,7 @@
 		 * @return resource A resource containing the rendered skin.
 		 *         You can use it with functions like imagepng.
 		 */
-		public function renderSkin($skin_path, $skin_type, $skin_side)
+		public function renderSkinFromPath($skin_path, $skin_type = 'steve', $skin_side = 'front')
 		{
 			// Load the skin
 			$skin = imagecreatefrompng($skin_path);
@@ -57,12 +57,27 @@
 				$skin      = imagecreatefrompng($skin_path);
 			}
 
+			return $this->renderSkinFromResource($skin, $skin_type, $skin_side);
+		}
+
+		/**
+		 * Renders a local Minecraft skin from its bitmap.
+		 *
+		 * @param resource $skin a resource containing the actual skin to render
+		 * @param string $skin_type the skin type; must be 'steve' or 'alex'
+		 * @param string $skin_side the side of the skin to render; must be 'front' or 'back'
+		 *
+		 * @return resource A resource containing the rendered skin.
+		 *         You can use it with functions like imagepng.
+		 */
+		public function renderSkinFromResource($skin, $skin_type = 'steve', $skin_side = 'front')
+		{
 			// Create the destination image (16*32 transparent png file)
 			$preview = imagecreatetruecolor(16, 32);
 
 			// Set the desired arm width (3 or 4 pixels) and check if it's a post-1.8 skin
 			$arm_width     = ($skin_type === 'alex' ? 3 : 4);
-			$is_new_format = $this->isNewSkinFormat($skin_path);
+			$is_new_format = $this->isNewSkinFormat($skin);
 
 			// Let's have a transparent background!
 			$transparent = imagecolorallocatealpha($preview, 255, 255, 255, 127);
@@ -171,8 +186,6 @@
 				}
 			}
 
-			imagedestroy($skin);
-
 			return $this->resizeBitmap($preview, $this->skin_width);
 		}
 
@@ -185,9 +198,9 @@
 		 *
 		 * @return string the rendered skin, encoded as a PNG base64 string.
 		 */
-		public function renderSkinBase64($skin_path, $skin_type, $skin_side)
+		public function renderSkinBase64($skin_path, $skin_type = 'steve', $skin_side = 'front')
 		{
-			$data = $this->renderSkin($skin_path, $skin_type, $skin_side);
+			$data = $this->renderSkinFromPath($skin_path, $skin_type, $skin_side);
 
 			// Write the image to the PHP output buffer
 			ob_start();
@@ -334,14 +347,23 @@
 		/**
 		 * Checks if a skin is of the post-1.8 format.
 		 *
-		 * @param $skin_path the path of the skin to check
+		 * @param resource $skin the skin to check
 		 *
 		 * @return bool true if the skin is in post-1.8 format, else false
 		 */
-		private function isNewSkinFormat(&$skin_path)
+		private function isNewSkinFormat(&$skin)
 		{
-			$size = getimagesize($skin_path);
-			return ($size[1] == $size[0] && $size[0] == 64);
+			return (imagesy($skin) == imagesx($skin) && imagesx($skin) == 64);
+		}
+
+		/**
+		 * Changes the width of the skins to be rendered.
+		 *
+		 * @param int $width the width of the skin preview
+		 */
+		public function setSkinWidth($width)
+		{
+			$this->skin_width = $width;
 		}
 
 	}
