@@ -1,4 +1,22 @@
 <?php
+
+	/* 
+	 * SkinPreview.class.php - Library to render previews of Minecraft (tm) skins
+     * Copyright (C) 2012-2015 Baptiste Candellier
+	 * 
+     * This program is free software: you can redistribute it and/or modify
+     * it under the terms of the GNU General Public License as published by
+     * the Free Software Foundation, either version 3 of the License, or
+     * (at your option) any later version.
+	 * 
+     * This program is distributed in the hope that it will be useful,
+     * but WITHOUT ANY WARRANTY; without even the implied warranty of
+     * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     * GNU General Public License for more details.
+	 * 
+     * You should have received a copy of the GNU General Public License
+     * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+     */
 	
 	class SkinRenderer {
 
@@ -8,6 +26,16 @@
 			$this->skin_width = $render_width;
 		}
 
+		/**
+		 * Renders a Minecraft skin.
+		 * 
+		 * @param string $skin_path the path to the skin that is to be rendered
+		 * @param string $skin_type the skin type; must be 'steve' or 'alex'
+		 * @param string $skin_side the side of the skin to render; must be 'front' or 'back'
+		 *
+		 * @return resource A resource containing the rendered skin. 
+		 *         You can use it with functions like imagepng().
+		 */
 		public function renderSkin($skin_path, $skin_type, $skin_side) {
 			// Load the skin
 			$skin = imagecreatefrompng($skin_path);
@@ -45,8 +73,8 @@
 				imagecopy($preview, $skin, 4 - $arm_width, 8, 44, 20, $arm_width, 12);
 
 				// Left arm
-				if(!$is_new_format || $this->areAllPixelsOfSameColor($skin, 36, 52, $arm_width, 12)) {
-					$this->flipSkin($preview, $skin, 12, 8, 44, 20, $arm_width, 12);
+				if(!$is_new_format || $this->isRectTransparent($skin, 36, 52, $arm_width, 12)) {
+					$this->flipRectHorizontal($preview, $skin, 12, 8, 44, 20, $arm_width, 12);
 				} else {
 					imagecopy($preview, $skin, 12, 8, 36, 52, $arm_width, 12);
 				}
@@ -55,8 +83,8 @@
 				imagecopy($preview, $skin, 4, 20, 4, 20, 4, 12);
 
 				// Left leg
-				if(!$is_new_format || $this->areAllPixelsOfSameColor($skin, 20, 52, 4, 12)) {
-					$this->flipSkin($preview, $skin, 8, 20, 4, 20, 4, 12);
+				if(!$is_new_format || $this->isRectTransparent($skin, 20, 52, 4, 12)) {
+					$this->flipRectHorizontal($preview, $skin, 8, 20, 4, 20, 4, 12);
 				} else {
 					imagecopy($preview, $skin, 8, 20, 20, 52, 4, 12);
 				}
@@ -95,8 +123,8 @@
 				imagecopy($preview, $skin, 12, 8, 48 + $arm_width, 20, $arm_width, 12);
 
 				// Left arm
-				if(!$is_new_format || $this->areAllPixelsOfSameColor($skin, 40 + $arm_width, 52, $arm_width, 12)) {
-					$this->flipSkin($preview, $skin, 4 - $arm_width, 8, 48 + $arm_width, 20, $arm_width, 12);
+				if(!$is_new_format || $this->isRectTransparent($skin, 40 + $arm_width, 52, $arm_width, 12)) {
+					$this->flipRectHorizontal($preview, $skin, 4 - $arm_width, 8, 48 + $arm_width, 20, $arm_width, 12);
 				} else {
 					imagecopy($preview, $skin, 4 - $arm_width, 8, 40 + $arm_width, 52, $arm_width, 12);
 				}
@@ -105,8 +133,8 @@
 				imagecopy($preview, $skin, 8, 20, 12, 20, 4, 12);
 
 				// Left leg
-				if(!$is_new_format || $this->areAllPixelsOfSameColor($skin, 28, 52, 4, 12)) {
-					$this->flipSkin($preview, $skin, 4, 20, 12, 20, 4, 12);
+				if(!$is_new_format || $this->isRectTransparent($skin, 28, 52, 4, 12)) {
+					$this->flipRectHorizontal($preview, $skin, 4, 20, 12, 20, 4, 12);
 				} else {
 					imagecopy($preview, $skin, 4, 20, 28, 52, 4, 12);
 				}
@@ -134,9 +162,18 @@
 
 			imagedestroy($skin);
 
-			return $this->resizeBitmap($preview);
+			return $this->resizeBitmap($preview, $this->skin_width);
 		}
 
+		/**
+		 * Renders a Minecraft skin as a base 64 string.
+		 * 
+		 * @param string $skin_path the path to the skin that is to be rendered
+		 * @param string $skin_type the skin type; must be 'steve' or 'alex'
+		 * @param string $skin_side the side of the skin to render; must be 'front' or 'back'
+		 *
+		 * @return string the rendered skin, encoded as a PNG base64 string.
+		 */
 		public function renderSkinBase64($skin_path, $skin_type, $skin_side) {
 			$data = $this->renderSkin($skin_path, $skin_type, $skin_side);
 
@@ -150,9 +187,17 @@
 			return base64_encode($contents);
 		}
 
-		private function resizeBitmap(&$skin) {
+		/**
+		 * Resizes a bitmap to the specified width. The height will be calculated automatically.
+		 * 
+		 * @param resource $bmp the image to be resized
+		 * @param int $width the width of the final bitmap
+		 *
+		 * @return resource the resized image
+		 */
+		private function resizeBitmap(&$bmp, $width) {
 			// Resize the render: currently, it's a 16*32 file. We usually want it larger.
-			$fullsize = imagecreatetruecolor($this->skin_width, $this->skin_width * 2);
+			$fullsize = imagecreatetruecolor($width, $width * 2);
 			imagesavealpha($fullsize, true);
 			
 			// Fill the render with a transparent background
@@ -160,12 +205,25 @@
 			imagefill($fullsize, 0, 0, $transparent);
 			
 			// Copy the render to the full-sized image
-			imagecopyresized($fullsize, $skin, 0, 0, 0, 0, imagesx($fullsize), imagesy($fullsize), imagesx($skin), imagesy($skin));
+			imagecopyresized($fullsize, $bmp, 0, 0, 0, 0, imagesx($fullsize), imagesy($fullsize), imagesx($bmp), imagesy($bmp));
 
 			return $fullsize;
 		}
 
-		private function flipSkin(&$preview, &$skin, $dst_x, $dst_y, $src_x, $src_y, $src_w, $src_h) {
+		/**
+		 * Flips a part of a bitmap horizontally and draws it onto another bitmap.
+		 * Behaves like imagecopy.
+		 *
+		 * @param resource $dest the bitmap we will be drawing onto
+		 * @param resource $skin the bitmap that contains the pixels to flip
+		 * @param int $dst_x x-coordinate of destination point
+		 * @param int $dst_y y-coordinate of destination point
+		 * @param int $src_x x-coordinate of source point
+		 * @param int $src_y y-coordinate of source point
+		 * @param int $src_w source width
+		 * @param int $src_h source height
+		 */
+		private function flipRectHorizontal(&$dest, $src, $dst_x, $dst_y, $src_x, $src_y, $src_w, $src_h) {
 			// In Minecraft, some parts of the skins are flipped horizontally, so we have to do that too
 			// Uses the same parameters as imagecopy
 
@@ -177,16 +235,21 @@
 			imagefill($tmp, 0, 0, $transparent);
 
 			// Copy to a new image, flip and copy back to the original
-			imagecopy($tmp, $skin, 0, 0, $src_x, $src_y, $src_w, $src_h);
+			imagecopy($tmp, $src, 0, 0, $src_x, $src_y, $src_w, $src_h);
 			$this->flipHorizontal($tmp);
-			imagecopy($preview, $tmp, $dst_x, $dst_y, 0, 0, $src_w, $src_h);
+			imagecopy($dest, $tmp, $dst_x, $dst_y, 0, 0, $src_w, $src_h);
 
 			imagedestroy($tmp);
 		}
 
-		private function flipHorizontal(&$img) {
-		 	$size_x = imagesx($img);
-		 	$size_y = imagesy($img);
+		/**
+		 * Flips all the pixels of a bitmap horizontally.
+		 *
+		 * @param resource $bmp the bitmap to flip
+		 */
+		private function flipHorizontal(&$bmp) {
+		 	$size_x = imagesx($bmp);
+		 	$size_y = imagesy($bmp);
 
 		 	$tmp = imagecreatetruecolor($size_x, $size_y);
 
@@ -195,14 +258,41 @@
 			$transparent = imagecolorallocatealpha($tmp, 255, 255, 255, 127);
 			imagefill($tmp, 0, 0, $transparent);
 
-		 	$x = imagecopyresampled($tmp, $img, 0, 0, ($size_x-1), 0, $size_x, $size_y, 0-$size_x, $size_y);
+		 	$x = imagecopyresampled($tmp, $bmp, 0, 0, ($size_x - 1), 0, $size_x, $size_y, 0 - $size_x, $size_y);
 		 	
 		 	if ($x) {
-				$img = $tmp;
+				$bmp = $tmp;
 			}
 		}
 
-		private function areAllPixelsOfSameColor(&$img, $x, $y, $w, $h) {		
+		/**
+		 * Overlays an armor part onto a destination.
+		 *
+		 * @param resource $armor the bitmap containing an armor part
+		 * @param resource $dest the bitmap to draw the armor on to
+		 * @param int $dst_x x-coordinate of destination point
+		 * @param int $dst_y y-coordinate of destination point
+		 * @param int $x x-coordinate of source point
+		 * @param int $y y-coordinate of source point
+		 * @param int $w source width
+		 * @param int $h source height
+		 */
+		private function overlayArmor(&$armor, &$dest, $dst_x, $dst_y, $x, $y, $w, $h) {
+			if(!$this->isRectTransparent($armor, $x, $y, $w, $h)) {
+				imagecopy($dest, $armor, $dst_x, $dst_y, $x, $y, $w, $h);
+			}
+		}
+
+		/**
+		 * Checks if all the pixels of a determined area are either transparent or black.
+		 * 
+		 * @param resource $img the bitmap containing the pixels to check
+		 * @param int $x x-coordinate of source point
+		 * @param int $y y-coordinate of source point
+		 * @param int $w source width
+		 * @param int $h source height
+		 */
+		private function isRectTransparent(&$img, $x, $y, $w, $h) {		
 			$transparent = imagecolorallocatealpha($img, 255, 255, 255, 127);
 			$black = imagecolorallocatealpha($img, 255, 255, 255, 0);
 
@@ -221,15 +311,16 @@
 			return true;
 		}
 		
+		/**
+		 * Checks if a skin is of the post-1.8 format.
+		 *
+		 * @param $skin_path the path of the skin to check
+		 *
+		 * @return boolean true if the skin is in post-1.8 format, else false
+		 */
 		private function isNewSkinFormat(&$skin_path) {
 			$size = getimagesize($skin_path);
 			return ($size[1] == $size[0] && $size[0] == 64);
-		}
-
-		private function overlayArmor(&$img, &$dest, $dst_x, $dst_y, $x, $y, $w, $h) {
-			if(!$this->areAllPixelsOfSameColor($img, $x, $y, $w, $h)) {
-				imagecopy($dest, $img, $dst_x, $dst_y, $x, $y, $w, $h);
-			}
 		}
 
 	}
