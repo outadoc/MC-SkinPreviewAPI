@@ -1,9 +1,5 @@
 <?php
 	
-	$skin_type = 'alex';
-	$skin_side = 'front';
-	$skin_path = 'test/alex.png';
-
 	// Disable error messages, since we're trying to send binary data
 	error_reporting(0);
 
