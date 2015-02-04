@@ -5,7 +5,7 @@
 	$skin_path = 'test/alex.png';
 
 	// Disable error messages, since we're trying to send binary data
-	//error_reporting(0);
+	error_reporting(0);
 
 	class SkinRenderer {
 
