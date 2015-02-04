@@ -13,6 +13,12 @@ The script should be compatible with all skins **pre and post Minecraft 1.8**: i
 slim arms (use the `alex` skin type).
 
 
+![Alex 1](http://i.imgur.com/vbbgKnS.png)
+![Alex 2](http://i.imgur.com/3NmgANu.png)
+![Steve 1](http://i.imgur.com/eKIMRVi.png)
+![Steve 2](http://i.imgur.com/JMhxnMh.png)
+
+
 Prerequisites
 -------------
 
