@@ -22,10 +22,18 @@
 	{
 
 		private $skin_width;
+		private $fallback_skin_path;
 
-		public function __construct($render_width = 85)
+		/**
+		 * Creates a new skin renderer. It can then be used to render as many skins as you like.
+		 * 
+		 * @param int $render_width the width of the rendered skin (corresponding height will be calculated automatically)
+		 * @param string $fallback_skin_path the skin file that will be used if the requested skin can't be loaded
+		 */
+		public function __construct($render_width = 85, $fallback_skin_path = 'char.png')
 		{
 			$this->skin_width = $render_width;
+			$this->fallback_skin_path = $fallback_skin_path;
 		}
 
 		/**
@@ -45,7 +53,7 @@
 
 			// If for some reason we couldn't download the file, use a steve skin instead
 			if ($skin === false) {
-				$skin_path = 'char.png';
+				$skin_path = $this->fallback_skin_path;
 				$skin      = imagecreatefrompng($skin_path);
 			}
 
